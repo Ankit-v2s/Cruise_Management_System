@@ -9,24 +9,32 @@ import com.opencsv.exceptions.CsvValidationException;
 public class Methods_Class {
 	int count;
 	Scanner sc = new Scanner(System.in);
-	
+
 	public ArrayList<Customer> read_Customer(String file) throws CsvValidationException, IOException {
 		ArrayList<Customer> custom = new ArrayList<Customer>();
-		String path = ("src/main/resources/" + file);
-		FileReader fr = new FileReader(path);
-		CSVReader reader = new CSVReader(fr);
-		String[] nextLine;
-		while ((nextLine = reader.readNext()) != null) {
-			Customer cust = new Customer();
-			cust.setCust_no(nextLine[0]);
-			cust.setCust_name(nextLine[1]);
-			cust.setEmail(nextLine[2]);
-			custom.add(cust);
-			count++;
+		try {
+			String path = ("src/main/resources/" + file);
+			FileReader fr = new FileReader(path);
+			CSVReader reader = new CSVReader(fr);
+			String[] nextLine;
+			while ((nextLine = reader.readNext()) != null) {
+				if((nextLine[2].endsWith(".com") || nextLine[2].endsWith(".in")) && nextLine[2].contains("@")) {
+					Customer cust = new Customer();
+					cust.setCust_no(nextLine[0]);
+					cust.setCust_name(nextLine[1]);
+					cust.setEmail(nextLine[2]);
+					custom.add(cust);
+					count++;
+				}
+			}
+			System.out.println("Data of given file is read");
+			System.out.println("Number of records: " + count);
+			reader.close();
+			return custom;
 		}
-		System.out.println("Data of given file is read");
-		System.out.println("Number of records: "+count);
-		reader.close();
+		catch(FileNotFoundException e) {
+			System.out.println(file+" file not found");
+		}
 		return custom;
 	}
 
@@ -54,11 +62,11 @@ public class Methods_Class {
 	}
 
 	public void book_Cruise(ArrayList<Customer> al, String temp_name) {
-		Methods_Class m=new Methods_Class();
+		Methods_Class m = new Methods_Class();
 		count = 0;
 		for (Customer cust : al) {
 			if (cust.getCust_name().equals(temp_name)) {
-				String date=m.date_Checker();
+				String date = m.date_Checker();
 				cust.setDate(date);
 				System.out.println("Booking for " + temp_name + " is confirmed");
 				System.out.println("From: cruise.booking@gmail.com" + "\nTo: " + cust.getEmail() + "\nDear " + temp_name
@@ -110,7 +118,7 @@ public class Methods_Class {
 		file.createNewFile();
 		FileWriter writer = new FileWriter(file);
 		for (Customer cust : al3) {
-			if(count==0) {
+			if (count == 0) {
 				writer.append("ID \tCustomer_Name\n");
 			}
 			writer.append(cust.getCust_no() + "," + cust.getCust_name() + "\n");
@@ -121,62 +129,65 @@ public class Methods_Class {
 			System.out.println("No bookings for " + cruise_on_date);
 		}
 	}
+
 	public String date_Checker() {
 		System.out.println("Enter Date in DD/MM/YYYY format");
 		System.out.println("Enter Year");
-		int year=sc.nextInt();
-		while(year<1000 || year>2022)
-		{
+		int year = sc.nextInt();
+		while (year < 1000 || year > 2022) {
 			System.out.println("Enter correct year");
-			year=sc.nextInt();
+			year = sc.nextInt();
 		}
 		System.out.println("Enter Month");
-		int month=sc.nextInt();
-		while(month>12 || month<=0)
-		{
+		int month = sc.nextInt();
+		while (month > 12 || month <= 0) {
 			System.out.println("Enter correct month");
-			month=sc.nextInt();
+			month = sc.nextInt();
 		}
 		System.out.println("Enter Day");
-		int day=sc.nextInt();
-		if(month==1 || month==3 || month==5 || month==7 || month==8 || month==10 || month==12)
-		{
-			while(day<=0 || day>31)
-			{
+		int day = sc.nextInt();
+		if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+			while (day <= 0 || day > 31) {
 				System.out.println("Enter correct Day");
-				day=sc.nextInt();
+				day = sc.nextInt();
 			}
-		}
-		else if(month==2)
-		{
-			if(year%4==0)
-			{
-				while(day<=0 || day>29)
-				{
+		} else if (month == 2) {
+			if (year % 4 == 0) {
+				while (day <= 0 || day > 29) {
 					System.out.println("Enter correct Day");
-					day=sc.nextInt();
+					day = sc.nextInt();
+				}
+			} else {
+				while (day <= 0 || day > 28) {
+					System.out.println("Enter correct Day");
+					day = sc.nextInt();
 				}
 			}
-			else
-			{
-				while(day<=0 || day>28)
-				{
-					System.out.println("Enter correct Day");
-					day=sc.nextInt();
-				}
-			}
-			
-		}
-		else
-		{
-			while(day<=0 || day>30)
-			{
+
+		} else {
+			while (day <= 0 || day > 30) {
 				System.out.println("Enter correct Day");
-				day=sc.nextInt();
+				day = sc.nextInt();
 			}
 		}
-		
-		String date=(day+"/"+month+"/"+year);
+
+		String date = (day + "/" + month + "/" + year);
 		return date;
+	}
+
+	public void search_By_Id(ArrayList<Customer> al, String search_id) {
+		count = 0;
+		for (Customer cust : al) {
+			if (cust.getCust_no().equals(search_id) && count == 0) {
+				System.out.println("ID \tCustomer_Name");
+			}
+			if (cust.getCust_no().contains(search_id)) {
+				System.out.println(cust.getCust_no() + "\t" + cust.getCust_name());
+				count++;
+			}
+		}
+		if (count == 0) {
+			System.out.println(search_id + " not found in Customer_Data");
+		}
 	}
 }
